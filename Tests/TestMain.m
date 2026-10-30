@@ -13,9 +13,10 @@
 static void drain(void){for(int i=0;i<16;i++)[NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.005]];}
 static void bridgeTests(void){
     MTFixtureAdapter *a=[MTFixtureAdapter new];MTGameBridge *b=[[MTGameBridge alloc]initWithAdapter:a];
-    [b poll];drain();NSCAssert(b.state.ready,@"solo test context ready");
+    [b poll];drain();NSCAssert(b.state.ready && !b.state.features[MTFeatureActivate].active,@"fresh session has no chosen cheats");
+    NSCAssert(![a applyFeature:MTFeatureHealth wanted:YES value:0].active,@"fixture models the native master gate");
     [b performFeature:MTFeatureHealth];[b performFeature:MTFeaturePlayerMultiplier];drain();
-    NSCAssert(b.state.features[MTFeatureHealth].active && [a.values[@(MTFeatureHealth)] intValue]==100 && [a.values[@(MTFeaturePlayerMultiplier)] doubleValue]==2,@"confirmed fixture effects");
+    NSCAssert(b.state.features[MTFeatureActivate].active && b.state.features[MTFeatureHealth].active && [a.values[@(MTFeatureHealth)] intValue]==100 && [a.values[@(MTFeaturePlayerMultiplier)] doubleValue]==2,@"confirmed fixture effects");
     [b poll];drain();NSCAssert([a.values[@(MTFeaturePlayerMultiplier)] doubleValue]==2,@"factors never compound");
     [b setValue:NAN forFeature:MTFeaturePlayerMultiplier];[b setValue:100 forFeature:MTFeaturePlayerMultiplier];drain();NSCAssert(b.state.features[MTFeaturePlayerMultiplier].value==2,@"invalid numeric values ignored");
     [b setValue:1000.5 forFeature:MTFeatureErgo];drain();NSCAssert(b.state.features[MTFeatureErgo].value==1000,@"integer amounts enforced");
@@ -32,6 +33,15 @@ static void bridgeTests(void){
     [b performFeature:MTFeatureHealth];drain();[b poll];for(int i=0;i<24;i++)[b performFeature:MTFeatureSaveCoordinates];[b performAction:MTTrainerDisableAll];a.mode=MTSessionLoading;drain();
     NSCAssert(!b.state.features[MTFeatureHealth].wanted && [a.values[@(MTFeatureSaveCoordinates)] intValue]==10,@"emergency shortcut survives full queue and loading");
     [b setOverlayInteraction:NO];drain();NSCAssert(!b.state.overlayMouseActive,@"UI release survives loading");
+    a.mode=MTSessionSolo;[b poll];drain();
+    [b performFeature:MTFeatureStamina];drain();
+    NSCAssert(b.state.features[MTFeatureActivate].active && b.state.features[MTFeatureStamina].active,@"first cheat after all-off activates the native master automatically");
+    [b performAction:MTTrainerDisableAll];drain();
+    [b performFeature:MTFeatureSaveCoordinates];drain();
+    NSCAssert(b.state.features[MTFeatureActivate].active && [a.values[@(MTFeatureSaveCoordinates)] intValue]==110,@"direct one-shot activates the native gate before executing, without manual activation");
+    [b performAction:MTTrainerDisableAll];drain();
+    a.mode=MTSessionNetwork;[b poll];drain();[b performFeature:MTFeatureStamina];[b performFeature:MTFeatureSaveCoordinates];drain();
+    NSCAssert(!b.state.features[MTFeatureActivate].wanted && !b.state.features[MTFeatureStamina].active && [a.values[@(MTFeatureSaveCoordinates)] intValue]==110,@"automatic activation never bypasses the network gate");
     MTGameBridge *unsupported=[[MTGameBridge alloc]initWithAdapter:[MTUnsupportedAdapter new]];[unsupported poll];[unsupported performFeature:MTFeatureHealth];drain();NSCAssert(!unsupported.state.ready && !unsupported.state.features[0].active,@"unknown adapter cannot claim a working cheat");
 }
 static NSEvent *mouse(NSWindow *window,NSView *view,NSPoint p,NSEventType type){return [NSEvent mouseEventWithType:type location:[view convertPoint:p toView:nil] modifierFlags:0 timestamp:0 windowNumber:window.windowNumber context:nil eventNumber:1 clickCount:1 pressure:1];}

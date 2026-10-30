@@ -6,7 +6,11 @@
 
 Die UI übergibt ausschließlich Funktions-ID und Zahlenwert. Sie greift nie auf
 native Spielobjekte zu. `GameBridge` verwaltet Auswahl, Kontextkennung und eine
-begrenzte serielle Warteschlange. Der Adapter besitzt alle engine-spezifischen
+begrenzte serielle Warteschlange. Das Einschalten eines Cheats aktiviert die
+native Anbindung automatisch. Bei einer Einmalaktion wird diese Aktivierung
+vor dem Aufruf auf demselben GameThread zurückgelesen. Gespeicherte Cheats
+funktionieren auch mit einer alten ausgeschalteten Master-Auswahl. „Alles aus“
+und die Netzwerk-/Ladesperre bleiben unverändert wirksam. Der Adapter besitzt alle engine-spezifischen
 Handles, Aufrufe, Baselines und Rücknahmen. Die synthetische `FixtureAdapter`-Testklasse liegt ausschließlich unter `Tests/`.
 
 ## 1. Tatsächlichen Build bestimmen

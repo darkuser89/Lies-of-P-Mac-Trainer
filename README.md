@@ -10,7 +10,7 @@ Eigenständiges Spielprojekt aus der lokalen GPL-3.0-Vorlage. Die ursprüngliche
 
 Steam öffnen. Eine bereits laufende Spielinstanz regulär beenden. Den Trainer öffnen, die Spiele-App auswählen und „Lies of P mit Trainer starten“ verwenden. Die bestätigte Steam-App-ID wird nur an den gestarteten Prozess übergeben. Das Spiel wird weder gepatcht noch neu signiert.
 
-Im geladenen Einzelspieler „Trainer aktivieren“ einschalten. Grün bedeutet erfolgreiche Rückleseprüfung des angewendeten Werts oder nativen Zustands. Orange bedeutet ausgewählt, aber noch nicht bestätigt. Fehlende Spieler/NPCs lassen Funktionen warten; eine tatsächliche Netzwerksitzung sperrt sie.
+Im geladenen Einzelspieler den gewünschten Cheat direkt einschalten. Die Spielanbindung aktiviert sich dabei automatisch; ein separater Klick auf „Trainer aktivieren“ ist nicht erforderlich. Grün bedeutet erfolgreiche Rückleseprüfung des angewendeten Werts oder nativen Zustands. Orange bedeutet ausgewählt, aber noch nicht bestätigt. Fehlende Spieler/NPCs lassen Funktionen warten; eine tatsächliche Netzwerksitzung sperrt sie.
 
 Die gewählten Dauerschalter einschließlich „Trainer aktivieren“ und ihrer eingestellten Multiplikatoren werden automatisch pro Spielprofil gespeichert. Die Launcher-Option „Mit zuletzt benutzten Cheats starten“ ist standardmäßig ausgeschaltet. Nur mit gesetztem Häkchen werden sie beim nächsten Start vorgemerkt und nach dem Laden eines gültigen Einzelspieler-Kontexts erneut angewendet. Einmalaktionen, einmalige Editoren und gespeicherte Teleportziele werden nicht automatisch ausgeführt. „Alles aus“ bleibt auch nach einem Neustart ausgeschaltet; eine bestätigte Netzwerksitzung löscht ebenfalls die gespeicherte Auswahl.
 

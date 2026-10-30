@@ -45,3 +45,7 @@
   und Netzwerk-Sperre löschen die gespeicherte Aktivierung. Wiederaktivierung nur
   bei gesetzter Launcher-Option „Mit zuletzt benutzten Cheats starten“;
   standardmäßig ausgeschaltet. Keine weiteren Extras.
+
+- Cheats und Einmalaktionen aktivieren die native Trainer-Anbindung bei Bedarf
+  automatisch. Keine manuelle Voraktivierung verlangen. Lade-/Netzwerk-/Besitzer-
+  Prüfungen bleiben verbindlich; „Alles aus“ bleibt wirksam.

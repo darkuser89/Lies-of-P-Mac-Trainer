@@ -37,7 +37,11 @@
         for(NSDictionary *entry in MTNormalizeSelection(selection)[@"features"]){
             NSInteger i=[entry[@"id"] integerValue];_wanted[i]=[entry[@"wanted"] boolValue];_values[i]=[entry[@"value"] doubleValue];
             _state.features[i].wanted=_wanted[i];_state.features[i].value=_values[i];
-        }}
+        }
+        // Old selections may contain a chosen cheat with the former master off.
+        for(NSInteger i=1;i<MTFeatureCount;i++)if(_wanted[i])_wanted[MTFeatureActivate]=YES;
+        _state.features[MTFeatureActivate].wanted=_wanted[MTFeatureActivate];
+    }
     return self;
 }
 - (MTTrainerState *)update:(NSInteger)command value:(NSNumber *)value expected:(uint64_t)expected {
@@ -64,13 +68,21 @@
         }
     }
     if(state.ready && feature>=0 && MTFeatureInfoAt(feature)->implemented){
-        if(MTFeatureInfoAt(feature)->oneShot)_message=[_adapter performOneShot:feature value:_values[feature]];
-        else {_wanted[feature]=!_wanted[feature];saveSelection=YES;_message=[NSString stringWithFormat:@"%@: %@",MTFeatureInfoAt(feature)->title,_wanted[feature] ? @"AN / wartet" : @"AUS"];}
+        const MTFeatureInfo *info=MTFeatureInfoAt(feature);
+        if(feature!=MTFeatureActivate && (info->oneShot || !_wanted[feature])){
+            saveSelection|=!_wanted[MTFeatureActivate];_wanted[MTFeatureActivate]=YES;
+        }
+        if(!info->oneShot){_wanted[feature]=!_wanted[feature];saveSelection=YES;_message=[NSString stringWithFormat:@"%@: %@",info->title,_wanted[feature] ? @"AN / wartet" : @"AUS"];}
     }
     for(NSInteger i=0;i<MTFeatureCount;i++){
         MTFeatureState *f=state.features[i];f.value=_values[i];f.wanted=_wanted[i];
         if(state.ready){MTFeatureState *actual=[_adapter applyFeature:i wanted:_wanted[i] value:_values[i]];f.available=actual.available;f.active=_wanted[i] && actual.active;f.note=actual.note ?: context.note;}
         else f.note=_mode==MTSessionLoading ? @"Auswahl bleibt erhalten; wartet auf gültigen Einzelspieler." : context.note;
+    }
+    if(state.ready && feature>=0 && MTFeatureInfoAt(feature)->implemented && MTFeatureInfoAt(feature)->oneShot){
+        // Apply and read back the native master and selected effects first.
+        // A direct action then needs no separate activation click.
+        _message=state.features[MTFeatureActivate].active ? [_adapter performOneShot:feature value:_values[feature]] : @"Spielanbindung noch nicht bestätigt; Aktion nicht ausgeführt.";
     }
     state.message=state.ready ? _message : context.note;
     if(saveSelection)state.selectionToSave=MTSelectionForFeatures(state.features);

@@ -263,13 +263,13 @@ static uint8_t editStat(MTFeature f) {
     if(!s.available)return s;
     _parameters[f]=value;_selected[f]=wanted;
     if(f==MTFeatureActivate){if(_activated&&!wanted)[self releaseEffects];_activated=wanted;s.active=_activated;s.note=@"Native Spielanbindung aktiv; Strg-Umschalt-Rücktaste löst alle eigenen Wirkungen.";return s;}
-    if(!_activated){s.note=@"Zuerst Activate Trainer einschalten.";return s;}
+    if(!_activated){s.note=@"Spielanbindung wird vorbereitet.";return s;}
     if(MTFeatureInfoAt(f)->oneShot){
         s.available=f!=MTFeatureTeleport||[_savedContext isEqual:self.identity];uint8_t id=editStat(f);
-        if(id)s.note=[NSString stringWithFormat:@"Aktuell im Spiel: %d · GO setzt den eingegebenen Zielwert.",stat(_stats,id)];
+        if(id)s.note=[NSString stringWithFormat:@"Aktuell im Spiel: %d · LOS setzt den eingegebenen Zielwert.",stat(_stats,id)];
         else if(f==MTFeatureErgo && object(_save))s.note=[NSString stringWithFormat:@"Aktuell: %d Ergo · Änderungen können gespeichert werden.",((int32_t(*)(uintptr_t))at(LOPGetErgo))(_data)];
-        else if(f==MTFeatureTimePlayed && object(_save)){double seconds=0;MTReadMemory((void *)(_save+0x70),&seconds,8);s.note=[NSString stringWithFormat:@"Aktuell: %.0f Sekunden · GO setzt den Zielwert.",seconds];}
-        else if(f==MTFeatureItemQuantity)s.note=@"Gewähltes Schnellzugriffs-Item; GO beachtet eigene Inventarzugehörigkeit und Stapelgrenze.";
+        else if(f==MTFeatureTimePlayed && object(_save)){double seconds=0;MTReadMemory((void *)(_save+0x70),&seconds,8);s.note=[NSString stringWithFormat:@"Aktuell: %.0f Sekunden · LOS setzt den Zielwert.",seconds];}
+        else if(f==MTFeatureItemQuantity)s.note=@"Gewähltes Schnellzugriffs-Item; LOS beachtet eigene Inventarzugehörigkeit und Stapelgrenze.";
         return s;
     }
     NSString *prefix=[NSString stringWithFormat:@"f%ld/",(long)f];

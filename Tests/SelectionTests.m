@@ -7,7 +7,7 @@
 static void selectionDrain(void){for(int i=0;i<16;i++)[NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.005]];}
 static NSDictionary *selectedFixture(void){
     MTTrainerState *state=[MTTrainerState new];
-    state.features[MTFeatureActivate].wanted=YES;state.features[MTFeatureHealth].wanted=YES;
+    state.features[MTFeatureActivate].wanted=NO;state.features[MTFeatureHealth].wanted=YES;
     state.features[MTFeaturePlayerMultiplier].wanted=YES;state.features[MTFeaturePlayerMultiplier].value=3.5;
     for(NSInteger i=0;i<MTFeatureCount;i++)if(MTFeatureInfoAt(i)->oneShot)state.features[i].wanted=YES;
     return MTSelectionForFeatures(state.features);
@@ -32,7 +32,7 @@ BOOL MTSelectionRunChild(int argc,const char *argv[],int *result){
         [bridge poll];selectionDrain();
         NSCAssert(!bridge.state.ready && bridge.state.features[MTFeatureHealth].wanted && !bridge.state.features[MTFeatureHealth].active && [adapter.values[@(MTFeatureHealth)] intValue]==50,@"fresh process restores choices but waits for a loaded solo context");
         adapter.mode=MTSessionSolo;[bridge poll];selectionDrain();
-        NSCAssert(bridge.state.features[MTFeatureActivate].active && bridge.state.features[MTFeatureHealth].active && bridge.state.features[MTFeaturePlayerMultiplier].active && bridge.state.features[MTFeaturePlayerMultiplier].value==3.5 && [adapter.values[@(MTFeaturePlayerMultiplier)] doubleValue]==3.5,@"fresh process reapplies saved continuous choices and numeric factor after loading");
+        NSCAssert(bridge.state.features[MTFeatureActivate].active && bridge.state.features[MTFeatureHealth].active && bridge.state.features[MTFeaturePlayerMultiplier].active && bridge.state.features[MTFeaturePlayerMultiplier].value==3.5 && [adapter.values[@(MTFeaturePlayerMultiplier)] doubleValue]==3.5,@"fresh process activates the native master for saved cheats even when the old master preference was off");
         for(NSInteger i=0;i<MTFeatureCount;i++)if(MTFeatureInfoAt(i)->oneShot)NSCAssert(!bridge.state.features[i].wanted,@"never restore a GO action as selected");
         NSCAssert([adapter.values[@(MTFeatureErgo)] intValue]==500 && [adapter.values[@(MTFeatureSaveCoordinates)] intValue]==10,@"loading does not execute permanent edits or saved-coordinate actions");
         MTSetRestoreSelection(preferences,@"steam-114-arm64",NO);
