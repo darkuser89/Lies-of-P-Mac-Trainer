@@ -16,8 +16,8 @@ OUT="$BUILD/release"
 [[ "$(plutil -extract CFBundleIconFile raw "$APP/Contents/Info.plist")" == AppIcon.icns ]]
 [[ -s "$APP/Contents/Resources/AppIcon.icns" ]]
 codesign --verify --deep --strict "$APP"
-lipo -verify_arch arm64 "$APP/Contents/MacOS/MacTrainer"
-lipo -verify_arch arm64 "$APP/Contents/Resources/TrainerOverlay.dylib"
+xcrun lipo "$APP/Contents/MacOS/MacTrainer" -verify_arch arm64
+xcrun lipo "$APP/Contents/Resources/TrainerOverlay.dylib" -verify_arch arm64
 mkdir -p "$OUT"
 CHECK="$(mktemp -d "$BUILD/.package-check.XXXXXX")"
 trap 'rm -rf "$CHECK"' EXIT
