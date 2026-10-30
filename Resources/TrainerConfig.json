@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "app": {
+    "name": "Lies of P Trainer",
+    "bundleIdentifier": "local.mactrainer.liesofp",
+    "version": "1.0.0",
+    "build": "1"
+  },
+  "profiles": [
+    {
+      "id": "steam-114-arm64",
+      "name": "Lies of P · Steam 1.14.0 · arm64",
+      "enabled": true,
+      "bundleIdentifier": "com.neowiz.game.lop.steam",
+      "executable": "LiesofP",
+      "uuids": [
+        "0F3CE7C1-0CBC-371B-99D6-28656270D8D7"
+      ],
+      "teamIdentifier": "7B88E3Y2CC",
+      "version": "1.14.0",
+      "steamAppId": "1627720"
+    }
+  ]
+}

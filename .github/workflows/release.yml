@@ -1,0 +1,67 @@
+name: App bauen und veröffentlichen
+
+"on":
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: macos-26
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      MT_TRAINER_BUILD_DIR: ${{ runner.temp }}/LiesOfPTrainer-build
+    steps:
+      - name: Quellstand laden
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: App mit Icon bauen und Tests ausführen
+        run: bash script/build_and_run.sh --build-only
+
+      - name: Signiertes App-Paket prüfen und packen
+        run: bash script/package_release.sh
+
+      - name: Aktuelles Release veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKAGE="$MT_TRAINER_BUILD_DIR/release/Lies-of-P-Trainer-macOS-arm64.zip"
+          CHECKSUMS="$MT_TRAINER_BUILD_DIR/release/SHA256SUMS.txt"
+          NOTES="$RUNNER_TEMP/liesofp-release-notes.md"
+          cat > "$NOTES" <<NOTES
+          Aktueller Build aus Commit $RELEASE_COMMIT.
+
+          - Deutsche Oberfläche mit Uhrwerk-Icon und angepasstem Launcher.
+          - Apple Silicon; ausschließlich Lies of P Steam 1.14.0.
+          - Build, synthetische Tests, App-Signatur und ZIP-Rückprüfung bestanden.
+          - Ad-hoc-signiert, nicht notarisiert. Zielversion macOS 14+; keine hier ausgeführte Prüfung auf macOS 14/15.
+          - Die CI startet kein Spiel und prüft keine Ingame-Wirkungen.
+
+          SHA256SUMS.txt enthält die Prüfsumme des Downloads.
+          NOTES
+          if gh release view latest >/dev/null 2>&1; then
+            gh release upload latest "$PACKAGE" "$CHECKSUMS" --clobber
+            gh api --method PATCH "repos/$GH_REPO/git/refs/tags/latest" \
+              -f sha="$RELEASE_COMMIT" -F force=true >/dev/null
+            gh release edit latest --title "Lies of P Trainer · aktueller Build" \
+              --notes-file "$NOTES" --latest
+          else
+            gh release create latest "$PACKAGE" "$CHECKSUMS" --target "$RELEASE_COMMIT" \
+              --title "Lies of P Trainer · aktueller Build" --notes-file "$NOTES" --latest
+          fi
