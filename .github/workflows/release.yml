@@ -19,13 +19,14 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: write
-    env:
-      MT_TRAINER_BUILD_DIR: ${{ runner.temp }}/LiesOfPTrainer-build
     steps:
       - name: Quellstand laden
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - name: Buildordner außerhalb des Quellcodes festlegen
+        run: echo "MT_TRAINER_BUILD_DIR=$RUNNER_TEMP/LiesOfPTrainer-build" >> "$GITHUB_ENV"
 
       - name: App mit Icon bauen und Tests ausführen
         run: bash script/build_and_run.sh --build-only
